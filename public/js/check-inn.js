@@ -54,15 +54,7 @@ checkButton.addEventListener('click', async () => {
     results.style.display = 'none';
     setLoading(true);
     
-    const apiUrl = `https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`;
-    const proxyUrl = `https://cors-anywhere.herokuapp.com/${apiUrl}`;
-    
-    const response = await fetch(proxyUrl, {
-      method: 'GET',
-      headers: {
-        'Origin': 'https://romeo787ooo.github.io'
-      }
-    });
+    const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
