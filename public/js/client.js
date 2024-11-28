@@ -1,43 +1,4 @@
 Addon.initialize({
-  settings: (settingsContext) => {
-    return settingsContext.openPopup({
-      title: 'INN Checker Settings',
-      url: './settings.html',
-      height: 200,
-      width: 300
-    });
-  },
-  'card_body_section': async (bodySectionContext) => {
-    const companyData = await bodySectionContext.getData('card', 'private', 'companyData');
-    
-    if (!companyData) {
-      return [];
-    }
-
-    return [{
-      title: '🏢 Данные о компании',
-      content: {
-        type: 'iframe',
-        url: bodySectionContext.signUrl('./company-info.html'),
-        height: 200,
-      }
-    }]
-  },
-  'card_facade_badges': async (context) => {
-    const companyData = await context.getData('card', 'private', 'companyData');
-    
-    if (!companyData) {
-      return {
-        text: '❌ ИНН не проверен',
-        color: 'red',
-      }
-    }
-
-    return {
-      text: '✅ ИНН проверен',
-      color: 'green',
-    }
-  },
   'card_buttons': async (cardButtonsContext) => {
     const buttons = [];
 
@@ -74,13 +35,16 @@ Addon.initialize({
             return;
           }
 
-          // Сохраняем данные в карточке
-          await buttonContext.setData('card', 'private', 'companyData', data);
-          
-          buttonContext.showSnackbar('Данные о компании успешно получены!', 'success');
+          // Показываем результат в диалоговом окне
+          return buttonContext.openDialog({
+            title: 'Информация о компании',
+            url: './public/views/company-info.html',
+            width: 'md',
+            height: 400,
+            args: { companyData: data }
+          });
         } catch (error) {
           buttonContext.showSnackbar('Ошибка при проверке ИНН', 'error');
-          console.error(error);
         }
       }
     });
