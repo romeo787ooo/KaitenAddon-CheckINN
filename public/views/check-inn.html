@@ -1,1 +1,20 @@
-
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://files.kaiten.ru/web-sdk/v1.min.js"></script>
+  <link href="https://files.kaiten.ru/web-sdk/v1.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="checkInnContent" style="padding: 16px;">
+    <label for="innInput" class="addon-input-label">Введите ИНН компании</label>
+    <input type="text" id="innInput" class="addon-input" style="width: 100%; margin: 8px 0;" 
+           placeholder="Например: 7710878000">
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+      <button id="cancel" class="addon-btn">Отмена</button>
+      <button id="check" class="addon-btn-primary">Проверить</button>
+    </div>
+  </div>
+  <script src="../js/check-inn.js"></script>
+</body>
+</html>
