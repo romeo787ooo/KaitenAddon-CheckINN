@@ -1,5 +1,3 @@
-const KAITEN_TOKEN = '507e44dd-373b-4945-a350-10ade92f5606'; // Ваш токен
-
 Addon.initialize({
   'card_buttons': async (cardButtonsContext) => {
     const buttons = [];

@@ -1,6 +1,4 @@
-const KAITEN_TOKEN = '507e44dd-373b-4945-a350-10ade92f5606'; // Замените на свой токен
-let currentCardId = null;
-let companyData = null;
+const iframe = Addon.iframe();
 
 const innInput = document.getElementById('innInput');
 const checkButton = document.getElementById('check');
@@ -8,44 +6,22 @@ const cancelButton = document.getElementById('cancel');
 const loader = document.getElementById('loader');
 const buttons = document.getElementById('buttons');
 const results = document.getElementById('results');
-const checkLinks = document.getElementById('checkLinks');
-const classifiedCheck = document.getElementById('classifiedCheck');
-const tourOperatorCheck = document.getElementById('tourOperatorCheck');
-const agentLinkInput = document.getElementById('agentLinkInput');
-const completeCheckButton = document.getElementById('completeCheck');
 
-// Инициализация iframe
-const iframe = Addon.iframe();
-
-// Получаем контекст
-iframe.render(() => {
-  iframe.getContext().then(context => {
-    currentCardId = context.card_id;
-    console.log('Current card ID:', currentCardId);
-  });
-});
+let companyData = null;
+let markdownText = '';
+let checks = {
+ classified: false,
+ tourOperator: false,
+ agentLink: ''
+};
 
 iframe.fitSize('#checkInnContent');
-
-// Остальной код остается без изменений...
 
 function setLoading(isLoading) {
  loader.style.display = isLoading ? 'block' : 'none';
  checkButton.disabled = isLoading;
  innInput.disabled = isLoading;
  iframe.fitSize('#checkInnContent');
-}
-
-function formatDateTime() {
- const now = new Date();
- return new Intl.DateTimeFormat('ru-RU', {
-   day: '2-digit',
-   month: '2-digit',
-   year: 'numeric',
-   hour: '2-digit',
-   minute: '2-digit',
-   timeZone: 'Europe/Moscow'
- }).format(now);
 }
 
 function renderResults(data) {
@@ -98,7 +74,48 @@ function renderResults(data) {
      </div>
    </div>
  `;
- checkLinks.style.display = 'block';
+
+ // Показываем ссылки на реестры
+ const registryLinks = document.getElementById('registryLinks');
+ registryLinks.style.display = 'block';
+
+ // Обновляем ссылки с учетом ИНН
+ const classifiedLink = document.getElementById('classifiedLink');
+ classifiedLink.href = `https://fsa.gov.ru/use-of-technology/elektronnye-reestryy/reestr-klassifitsirovannykh-obektov-gostinitsy-i-inye-sredstva-razmeshcheniya/?inn=${data.inn}`;
+
+ const tourOperatorLink = document.getElementById('tourOperatorLink');
+ tourOperatorLink.href = 'https://economy.gov.ru/material/directions/turizm/reestry_turizm/edinyy_federalnyy_reestr_turoperatorov/poisk_po_efrt/';
+
+ // Обработчики для чек-боксов
+ classifiedLink.addEventListener('click', () => {
+   checks.classified = true;
+   document.getElementById('classifiedCheck').style.display = 'inline';
+   updateCompleteButton();
+ });
+
+ tourOperatorLink.addEventListener('click', () => {
+   checks.tourOperator = true;
+   document.getElementById('tourOperatorCheck').style.display = 'inline';
+   updateCompleteButton();
+ });
+
+ document.querySelector('a[href="https://tourism.gov.ru/agents/"]').addEventListener('click', () => {
+   document.getElementById('agentLinkInput').style.display = 'block';
+   updateCompleteButton();
+ });
+
+ // Обработчик ввода ссылки
+ document.querySelector('#agentLinkInput input').addEventListener('change', (e) => {
+   checks.agentLink = e.target.value;
+   updateCompleteButton();
+ });
+
+ iframe.fitSize('#checkInnContent');
+}
+
+function updateCompleteButton() {
+ const hasChecks = checks.classified || checks.tourOperator || checks.agentLink;
+ document.getElementById('completeCheck').style.display = hasChecks ? 'block' : 'none';
  iframe.fitSize('#checkInnContent');
 }
 
@@ -107,138 +124,83 @@ cancelButton.addEventListener('click', () => {
 });
 
 checkButton.addEventListener('click', async () => {
-  const inn = innInput.value.trim();
-  
-  if (!inn || inn.length < 10) {
-    iframe.showSnackbar('Введите корректный ИНН', 'warning');
-    return;
-  }
-
-  try {
-    results.style.display = 'none';
-    checkLinks.style.display = 'none';
-    setLoading(true);
-
-    console.log('Sending request to:', `https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
-    
-    // Добавляем заголовки и режим no-cors
-    const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      mode: 'cors' // Пробуем разные режимы: 'cors', 'no-cors', 'same-origin'
-    });
-    
-    console.log('Response received:', response);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log('Data received:', data);
-
-    if (data.error) {
-      setLoading(false);
-      iframe.showSnackbar(`Ошибка: ${data.error}`, 'error');
-      return;
-    }
-
-    setLoading(false);
-    renderResults(data);
-
-  } catch (error) {
-    console.error('Error details:', error);
-    iframe.showSnackbar(`Ошибка при проверке ИНН: ${error.message}`, 'error');
-    setLoading(false);
-  }
-});
-
-// Обработчики для ссылок
-document.querySelector('a[href*="fsa.gov.ru"]').addEventListener('click', () => {
- classifiedCheck.style.display = 'inline';
-});
-
-document.querySelector('a[href*="economy.gov.ru"]').addEventListener('click', () => {
- tourOperatorCheck.style.display = 'inline';
-});
-
-document.querySelector('a[href*="tourism.gov.ru"]').addEventListener('click', () => {
- agentLinkInput.style.display = 'block';
- iframe.fitSize('#checkInnContent');
-});
-
-completeCheckButton.addEventListener('click', async () => {
- if (!companyData) {
-   iframe.showSnackbar('Нет данных о компании', 'error');
+ const inn = innInput.value.trim();
+ 
+ if (!inn || inn.length < 10) {
+   iframe.showSnackbar('Введите корректный ИНН', 'warning');
    return;
  }
 
  try {
-   // Формируем текст для вставки
-   let checkResult = `\n\n### Проверка контрагента от ${formatDateTime()} (МСК)\n\n`;
-   checkResult += `**Наименование:** ${companyData.title}\n`;
-   checkResult += `**ИНН:** ${companyData.inn}\n`;
-   checkResult += `**КПП:** ${companyData.kpp}\n`;
-   checkResult += `**ОГРН:** ${companyData.ogrn}\n`;
-   checkResult += `**Статус:** ${companyData.status}\n`;
-   checkResult += `**Адрес:** ${companyData.address}\n`;
-   checkResult += `**Руководитель:** ${companyData.managementFIO}\n`;
-   checkResult += `**Должность:** ${companyData.managementPost}\n\n`;
+   results.style.display = 'none';
+   setLoading(true);
    
-   if (classifiedCheck.style.display === 'inline') {
-     checkResult += '✅ Проверен в Реестре классифицированных объектов\n';
-   }
-   
-   if (tourOperatorCheck.style.display === 'inline') {
-     checkResult += '✅ Проверен в Федеральном реестре Туроператоров\n';
-   }
-   
-   const agentLinkValue = agentLinkInput.querySelector('input')?.value;
-   if (agentLinkValue) {
-     checkResult += `🔗 Ссылка на реестр Турагентов: ${agentLinkValue}\n`;
-   }
-
-   // Получаем текущую карточку через API
-   const response = await fetch(`https://mosgt.kaiten.ru/api/latest/cards/${currentCardId}`, {
-     headers: {
-       'Authorization': `Bearer ${KAITEN_TOKEN}`
-     }
-   });
+   const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
    
    if (!response.ok) {
-     throw new Error('Failed to fetch card data');
-   }
-
-   const card = await response.json();
-   const currentDescription = card.description || '';
-   const newDescription = currentDescription + checkResult;
-
-   // Обновляем описание карточки через API
-   const updateResponse = await fetch(`https://mosgt.kaiten.ru/api/latest/cards/${currentCardId}`, {
-     method: 'PATCH',
-     headers: {
-       'Content-Type': 'application/json',
-       'Authorization': `Bearer ${KAITEN_TOKEN}`
-     },
-     body: JSON.stringify({
-       description: newDescription
-     })
-   });
-
-   if (!updateResponse.ok) {
-     throw new Error('Failed to update card description');
+     throw new Error(`HTTP error! status: ${response.status}`);
    }
    
-   iframe.showSnackbar('Проверка завершена. Результаты добавлены в описание карточки', 'success');
-   iframe.closePopup();
+   const data = await response.json();
+
+   if (data.error) {
+     setLoading(false);
+     iframe.showSnackbar(`Ошибка: ${data.error}`, 'error');
+     return;
+   }
+
+   setLoading(false);
+   renderResults(data);
 
  } catch (error) {
-   console.error('Error updating card:', error);
-   iframe.showSnackbar('Ошибка при обновлении карточки', 'error');
+   console.error('Error details:', error);
+   iframe.showSnackbar('Ошибка при проверке ИНН. Проверьте консоль для деталей.', 'error');
+   setLoading(false);
  }
+});
+
+// Обработчик для кнопки "Проверка завершена"
+document.getElementById('completeCheck').addEventListener('click', () => {
+ markdownText = `### Информация о компании\n\n`;
+ markdownText += `**${companyData.title}**\n\n`;
+ markdownText += `ИНН: ${companyData.inn}\n`;
+ markdownText += `КПП: ${companyData.kpp}\n`;
+ markdownText += `ОГРН: ${companyData.ogrn}\n`;
+ markdownText += `Статус: ${companyData.status}\n`;
+ markdownText += `Адрес: ${companyData.address}\n`;
+ markdownText += `Руководитель: ${companyData.managementFIO}\n`;
+ markdownText += `Должность: ${companyData.managementPost}\n\n`;
+
+ if (checks.classified || checks.tourOperator || checks.agentLink) {
+   markdownText += `### Проверка в реестрах\n\n`;
+   if (checks.classified) {
+     markdownText += `✅ Проверено в Реестре классифицированных объектов\n`;
+   }
+   if (checks.tourOperator) {
+     markdownText += `✅ Проверено в Федеральном реестре Туроператоров\n`;
+   }
+   if (checks.agentLink) {
+     markdownText += `🔗 Ссылка на реестр Турагентов: ${checks.agentLink}\n`;
+   }
+ }
+
+ // Копируем в буфер обмена
+ navigator.clipboard.writeText(markdownText).then(() => {
+   iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
+   
+   // Скрываем все кнопки кроме копирования
+   document.getElementById('buttons').style.display = 'none';
+   document.getElementById('completeCheck').style.display = 'none';
+   document.getElementById('registryLinks').style.display = 'none';
+   document.getElementById('copyResult').style.display = 'block';
+ });
+});
+
+// Обработчик для кнопки копирования
+document.getElementById('copyText').addEventListener('click', () => {
+ navigator.clipboard.writeText(markdownText).then(() => {
+   iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
+ });
 });
 
 innInput.addEventListener('keypress', (e) => {

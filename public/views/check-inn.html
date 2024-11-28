@@ -37,19 +37,12 @@
      gap: 8px;
    }
 
-   .checkLinks {
-     display: none;
-     margin-top: 20px;
-     border-top: 1px solid var(--addon-divider);
-     padding-top: 16px;
-   }
-
-   .checkLinks a {
+   .registry-link a {
      color: var(--addon-primary-color);
      text-decoration: none;
    }
 
-   .checkLinks a:hover {
+   .registry-link a:hover {
      text-decoration: underline;
    }
  </style>
@@ -65,29 +58,44 @@
      <div style="margin-top: 8px;">Проверка ИНН...</div>
    </div>
 
+   <!-- Секция с результатами -->
    <div id="results" class="results"></div>
 
-   <div id="checkLinks" class="checkLinks">
+   <!-- Секция с ссылками на реестры -->
+   <div id="registryLinks" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--addon-divider);">
      <div style="font-size: 14px; color: var(--addon-text-secondary-color); margin-bottom: 12px;">
        Проверка в реестрах:
      </div>
-     <div style="display: flex; align-items: center; margin-bottom: 8px;">
-       <a href="https://fsa.gov.ru/use-of-technology/elektronnye-reestryy/reestr-klassifitsirovannykh-obektov-gostinitsy-i-inye-sredstva-razmeshcheniya/?inn=2301006169" target="_blank">Реестр классифицированных объектов</a>
-       <span id="classifiedCheck" style="margin-left: 8px; display: none;">✅</span>
+     <div class="registry-link" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+       <a href="#" id="classifiedLink" target="_blank">Реестр классифицированных объектов</a>
+       <span id="classifiedCheck" style="display: none; color: green;">✓</span>
      </div>
-     <div style="display: flex; align-items: center; margin-bottom: 8px;">
-       <a href="https://economy.gov.ru/material/directions/turizm/reestry_turizm/edinyy_federalnyy_reestr_turoperatorov/poisk_po_efrt/" target="_blank">Федеральный реестр Туроператоров</a>
-       <span id="tourOperatorCheck" style="margin-left: 8px; display: none;">✅</span>
+     <div class="registry-link" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+       <a href="#" id="tourOperatorLink" target="_blank">Федеральный реестр Туроператоров</a>
+       <span id="tourOperatorCheck" style="display: none; color: green;">✓</span>
      </div>
-     <div style="margin-bottom: 8px;">
+     <div class="registry-link" style="margin-bottom: 8px;">
        <a href="https://tourism.gov.ru/agents/" target="_blank">Федеральный реестр Турагентов и Субагентов</a>
      </div>
      <div id="agentLinkInput" style="display: none; margin-top: 8px;">
-       <input type="text" class="addon-input" placeholder="Вставьте ссылку на агента" style="width: 100%;">
+       <input type="text" class="addon-input" placeholder="Вставьте ссылку на реестр" style="width: 100%;">
      </div>
-     <button id="completeCheck" class="addon-btn-primary" style="width: 100%; margin-top: 16px;">Проверка завершена</button>
+     <button id="completeCheck" class="addon-btn-primary" style="width: 100%; margin-top: 16px; display: none;">
+       Проверка завершена
+     </button>
    </div>
 
+   <!-- Секция с копированием результата -->
+   <div id="copyResult" style="display: none; margin-top: 16px; text-align: center;">
+     <button id="copyText" class="addon-btn-primary" style="width: 100%;">
+       Скопировать результат проверки
+     </button>
+     <div style="margin-top: 8px; color: var(--addon-text-secondary-color); font-size: 12px;">
+       Нажмите на кнопку и вставьте скопированный текст в Описание к карточке!
+     </div>
+   </div>
+
+   <!-- Кнопки управления -->
    <div id="buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
      <button id="cancel" class="addon-btn">Закрыть</button>
      <button id="check" class="addon-btn-primary">Проверить</button>
