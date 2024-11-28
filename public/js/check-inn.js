@@ -20,8 +20,8 @@ function renderResults(data) {
   results.style.display = 'block';
   results.innerHTML = `
     <div class="company-info">
-      <span style="font-size: 14px; color: var(--addon-text-secondary-color);">Наименование организации:</span>
-      <div style="font-size: 16px; font-weight: 500; margin: 4px 0 16px 0; color: var(--addon-text-primary-color);">
+      <span style="font-size: 12px; color: var(--addon-text-secondary-color);">Наименование организации:</span>
+      <div style="font-size: 12px; font-weight: 500; margin: 4px 0 16px 0; color: var(--addon-text-primary-color);">
         ${data.title || '-'}
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; background: var(--addon-background-level2); border-radius: 8px;">
