@@ -3,8 +3,18 @@ const iframe = Addon.iframe();
 const innInput = document.getElementById('innInput');
 const checkButton = document.getElementById('check');
 const cancelButton = document.getElementById('cancel');
+const loader = document.getElementById('loader');
+const buttons = document.getElementById('buttons');
 
 iframe.fitSize('#checkInnContent');
+
+// Функция управления состоянием загрузки
+function setLoading(isLoading) {
+  loader.style.display = isLoading ? 'block' : 'none';
+  buttons.style.display = isLoading ? 'none' : 'flex';
+  innInput.disabled = isLoading;
+  iframe.fitSize('#checkInnContent');
+}
 
 cancelButton.addEventListener('click', () => {
   iframe.closePopup();
@@ -19,7 +29,8 @@ checkButton.addEventListener('click', async () => {
   }
 
   try {
-    // Используем CORS-proxy
+    setLoading(true);
+    
     const apiUrl = `https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`;
     const proxyUrl = `https://cors-anywhere.herokuapp.com/${apiUrl}`;
     
@@ -37,6 +48,7 @@ checkButton.addEventListener('click', async () => {
     const data = await response.json();
 
     if (data.error) {
+      setLoading(false);
       iframe.showSnackbar(`Ошибка: ${data.error}`, 'error');
       return;
     }
@@ -50,14 +62,16 @@ checkButton.addEventListener('click', async () => {
       height: 400,
       args: { companyData: data }
     });
+
   } catch (error) {
     console.error('Error details:', error);
     iframe.showSnackbar('Ошибка при проверке ИНН. Проверьте консоль для деталей.', 'error');
+    setLoading(false);
   }
 });
 
 innInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' && !innInput.disabled) {
     checkButton.click();
   }
 });

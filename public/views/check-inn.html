@@ -4,13 +4,41 @@
   <meta charset="utf-8">
   <script src="https://files.kaiten.ru/web-sdk/v1.min.js"></script>
   <link href="https://files.kaiten.ru/web-sdk/v1.min.css" rel="stylesheet" />
+  <style>
+    .loader {
+      display: none;
+      text-align: center;
+      padding: 10px;
+    }
+    
+    .loader-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--addon-background-level2);
+      border-radius: 50%;
+      border-top-color: var(--addon-primary-color);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div id="checkInnContent" style="padding: 16px;">
     <label for="innInput" class="addon-input-label">Введите ИНН компании</label>
     <input type="text" id="innInput" class="addon-input" style="width: 100%; margin: 8px 0;" 
            placeholder="Например: 7710878000">
-    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+    
+    <!-- Добавляем индикатор загрузки -->
+    <div id="loader" class="loader">
+      <div class="loader-spinner"></div>
+      <div style="margin-top: 8px;">Проверка ИНН...</div>
+    </div>
+
+    <div id="buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
       <button id="cancel" class="addon-btn">Отмена</button>
       <button id="check" class="addon-btn-primary">Проверить</button>
     </div>
