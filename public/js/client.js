@@ -9,8 +9,8 @@ Addon.initialize({
           type: 'iframe',
           title: 'Проверка ИНН',
           url: './public/views/check-inn.html',
-          height: 150,
-          width: 400
+          height: 200,
+          width: 600
         });
       }
     });
