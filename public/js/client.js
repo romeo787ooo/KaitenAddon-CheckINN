@@ -1,7 +1,46 @@
 Addon.initialize({
+  settings: (settingsContext) => {
+    return settingsContext.openPopup({
+      title: 'INN Checker Settings',
+      url: './settings.html',
+      height: 200,
+      width: 300
+    });
+  },
+  'card_body_section': async (bodySectionContext) => {
+    const companyData = await bodySectionContext.getData('card', 'private', 'companyData');
+    
+    if (!companyData) {
+      return [];
+    }
+
+    return [{
+      title: '🏢 Данные о компании',
+      content: {
+        type: 'iframe',
+        url: bodySectionContext.signUrl('./company-info.html'),
+        height: 200,
+      }
+    }]
+  },
+  'card_facade_badges': async (context) => {
+    const companyData = await context.getData('card', 'private', 'companyData');
+    
+    if (!companyData) {
+      return {
+        text: '❌ ИНН не проверен',
+        color: 'red',
+      }
+    }
+
+    return {
+      text: '✅ ИНН проверен',
+      color: 'green',
+    }
+  },
   'card_buttons': async (cardButtonsContext) => {
     const buttons = [];
-    
+
     // Получаем права доступа
     const permissions = cardButtonsContext.getPermissions();
     if (!permissions.card.read) {
@@ -19,7 +58,7 @@ Addon.initialize({
           const properties = await buttonContext.getCardProperties('customProperties');
           
           // Ищем поле с ID 398033
-          const innField = properties?.find(prop => prop.id === 398033);
+          const innField = properties?.find(prop => prop.id === '398033');
           
           if (!innField?.value) {
             buttonContext.showSnackbar('ИНН не указан в карточке', 'warning');
@@ -35,17 +74,13 @@ Addon.initialize({
             return;
           }
 
-          // Показываем результат в диалоговом окне
-          return buttonContext.openDialog({
-            title: 'Информация о компании',
-            url: buttonContext.signUrl('./company-info.html'),
-            width: 'md',
-            height: 400,
-            // Передаем данные в диалог
-            args: { companyData: data }
-          });
+          // Сохраняем данные в карточке
+          await buttonContext.setData('card', 'private', 'companyData', data);
+          
+          buttonContext.showSnackbar('Данные о компании успешно получены!', 'success');
         } catch (error) {
           buttonContext.showSnackbar('Ошибка при проверке ИНН', 'error');
+          console.error(error);
         }
       }
     });
