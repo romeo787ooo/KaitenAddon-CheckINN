@@ -20,18 +20,48 @@ function renderResults(data) {
   results.style.display = 'block';
   results.innerHTML = `
     <div class="company-info">
-      <h3 style="margin-bottom: 16px; color: var(--addon-text-primary-color);">
-        ${data.title || 'Информация о компании'}
-      </h3>
-      <div class="info-grid">
-        <div><strong>ИНН:</strong> ${data.inn || '-'}</div>
-        <div><strong>КПП:</strong> ${data.kpp || '-'}</div>
-        <div><strong>ОГРН:</strong> ${data.ogrn || '-'}</div>
-        <div><strong>Статус:</strong> ${data.status || '-'}</div>
-        <div><strong>Адрес:</strong> ${data.address || '-'}</div>
-        <div><strong>Руководитель:</strong> ${data.managementFIO || '-'}</div>
-        <div><strong>Должность:</strong> ${data.managementPost || '-'}</div>
-        <div><strong>ОКПО:</strong> ${data.okpo || '-'}</div>
+      <span style="font-size: 14px; color: var(--addon-text-secondary-color);">Наименование организации:</span>
+      <div style="font-size: 16px; font-weight: 500; margin: 4px 0 16px 0; color: var(--addon-text-primary-color);">
+        ${data.title || '-'}
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; background: var(--addon-background-level2); border-radius: 8px;">
+        <div style="color: var(--addon-text-primary-color);">
+          <div style="margin-bottom: 8px;">
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">ИНН</div>
+            <div style="font-weight: 500;">${data.inn || '-'}</div>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">КПП</div>
+            <div style="font-weight: 500;">${data.kpp || '-'}</div>
+          </div>
+          <div>
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">ОГРН</div>
+            <div style="font-weight: 500;">${data.ogrn || '-'}</div>
+          </div>
+        </div>
+        <div style="color: var(--addon-text-primary-color);">
+          <div style="margin-bottom: 8px;">
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">Статус</div>
+            <div style="font-weight: 500;">${data.status || '-'}</div>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">ОКПО</div>
+            <div style="font-weight: 500;">${data.okpo || '-'}</div>
+          </div>
+          <div>
+            <div style="color: var(--addon-text-secondary-color); font-size: 12px;">ОКВЭД</div>
+            <div style="font-weight: 500;">${data.okved || '-'}</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 12px;">
+        <div style="color: var(--addon-text-secondary-color); font-size: 12px;">Адрес</div>
+        <div style="margin-top: 4px; color: var(--addon-text-primary-color);">${data.address || '-'}</div>
+      </div>
+      <div style="margin-top: 12px;">
+        <div style="color: var(--addon-text-secondary-color); font-size: 12px;">Руководитель</div>
+        <div style="margin-top: 4px; color: var(--addon-text-primary-color);">${data.managementFIO || '-'}</div>
+        <div style="font-size: 12px; color: var(--addon-text-secondary-color); margin-top: 2px;">${data.managementPost || '-'}</div>
       </div>
     </div>
   `;
