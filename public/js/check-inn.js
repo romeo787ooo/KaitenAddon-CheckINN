@@ -8,7 +8,6 @@ const buttons = document.getElementById('buttons');
 
 iframe.fitSize('#checkInnContent');
 
-// Функция управления состоянием загрузки
 function setLoading(isLoading) {
   loader.style.display = isLoading ? 'block' : 'none';
   buttons.style.display = isLoading ? 'none' : 'flex';
@@ -46,6 +45,7 @@ checkButton.addEventListener('click', async () => {
     }
     
     const data = await response.json();
+    console.log('Received data:', data); // Для отладки
 
     if (data.error) {
       setLoading(false);
@@ -53,14 +53,16 @@ checkButton.addEventListener('click', async () => {
       return;
     }
 
+    // Закрываем попап только после успешного получения данных
     await iframe.closePopup();
 
+    // Открываем диалог с результатами
     return iframe.openDialog({
-      title: 'Информация о компании',
+      title: `Информация о компании: ${data.title || inn}`,
       url: './company-info.html',
       width: 'md',
       height: 400,
-      args: { companyData: data }
+      args: { companyData: data } // Передаем данные
     });
 
   } catch (error) {
