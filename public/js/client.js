@@ -15,7 +15,7 @@ Addon.initialize({
         });
       }
     });
-
+    // TESTOVII Комментарий
     return buttons;
   }
 });
