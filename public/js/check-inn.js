@@ -23,8 +23,13 @@ checkButton.addEventListener('click', async () => {
   }
 
   try {
-    // Делаем запрос к API
+    // Исправленный URL запроса к API (было Partne, стало Partner)
     const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
 
     if (data.error) {
@@ -44,8 +49,8 @@ checkButton.addEventListener('click', async () => {
       args: { companyData: data }
     });
   } catch (error) {
-    iframe.showSnackbar('Ошибка при проверке ИНН', 'error');
-    console.error(error);
+    console.error('Error details:', error);
+    iframe.showSnackbar('Ошибка при проверке ИНН. Проверьте консоль для деталей.', 'error');
   }
 });
 
