@@ -1,5 +1,4 @@
-const iframe = Addon.iframe();
-const KAITEN_TOKEN = '296a5709-99bc-49a7-96e0-c0a1b236091f'; // Замените на свой токен
+const KAITEN_TOKEN = '507e44dd-373b-4945-a350-10ade92f5606'; // Замените на свой токен
 let currentCardId = null;
 let companyData = null;
 
@@ -15,12 +14,20 @@ const tourOperatorCheck = document.getElementById('tourOperatorCheck');
 const agentLinkInput = document.getElementById('agentLinkInput');
 const completeCheckButton = document.getElementById('completeCheck');
 
-// Получаем cardId при инициализации
-iframe.getArgs().then(args => {
- currentCardId = args.cardId;
+// Инициализация iframe
+const iframe = Addon.iframe();
+
+// Получаем контекст
+iframe.render(() => {
+  iframe.getContext().then(context => {
+    currentCardId = context.card_id;
+    console.log('Current card ID:', currentCardId);
+  });
 });
 
 iframe.fitSize('#checkInnContent');
+
+// Остальной код остается без изменений...
 
 function setLoading(isLoading) {
  loader.style.display = isLoading ? 'block' : 'none';
