@@ -75,9 +75,10 @@ function renderResults(data) {
    </div>
  `;
 
- // Показываем ссылки на реестры
+ // Показываем ссылки на реестры и кнопку "Проверка завершена" сразу
  const registryLinks = document.getElementById('registryLinks');
  registryLinks.style.display = 'block';
+ document.getElementById('completeCheck').style.display = 'block';
 
  // Обновляем ссылки с учетом ИНН
  const classifiedLink = document.getElementById('classifiedLink');
@@ -90,32 +91,22 @@ function renderResults(data) {
  classifiedLink.addEventListener('click', () => {
    checks.classified = true;
    document.getElementById('classifiedCheck').style.display = 'inline';
-   updateCompleteButton();
  });
 
  tourOperatorLink.addEventListener('click', () => {
    checks.tourOperator = true;
    document.getElementById('tourOperatorCheck').style.display = 'inline';
-   updateCompleteButton();
  });
 
  document.querySelector('a[href="https://tourism.gov.ru/agents/"]').addEventListener('click', () => {
    document.getElementById('agentLinkInput').style.display = 'block';
-   updateCompleteButton();
  });
 
  // Обработчик ввода ссылки
  document.querySelector('#agentLinkInput input').addEventListener('change', (e) => {
    checks.agentLink = e.target.value;
-   updateCompleteButton();
  });
 
- iframe.fitSize('#checkInnContent');
-}
-
-function updateCompleteButton() {
- const hasChecks = checks.classified || checks.tourOperator || checks.agentLink;
- document.getElementById('completeCheck').style.display = hasChecks ? 'block' : 'none';
  iframe.fitSize('#checkInnContent');
 }
 
@@ -174,18 +165,26 @@ document.getElementById('completeCheck').addEventListener('click', () => {
  if (checks.classified || checks.tourOperator || checks.agentLink) {
    markdownText += `### Проверка в реестрах\n\n`;
    if (checks.classified) {
-     markdownText += `✅ Проверено в Реестре классифицированных объектов\n`;
+     markdownText += `✓ Проверено в Реестре классифицированных объектов\n`;
    }
    if (checks.tourOperator) {
-     markdownText += `✅ Проверено в Федеральном реестре Туроператоров\n`;
+     markdownText += `✓ Проверено в Федеральном реестре Туроператоров\n`;
    }
    if (checks.agentLink) {
      markdownText += `🔗 Ссылка на реестр Турагентов: ${checks.agentLink}\n`;
    }
  }
 
- // Копируем в буфер обмена
- navigator.clipboard.writeText(markdownText).then(() => {
+ // Создаем временный элемент textarea для копирования
+ const textarea = document.createElement('textarea');
+ textarea.value = markdownText;
+ textarea.style.position = 'fixed';
+ textarea.style.opacity = 0;
+ document.body.appendChild(textarea);
+ textarea.select();
+ 
+ try {
+   document.execCommand('copy');
    iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
    
    // Скрываем все кнопки кроме копирования
@@ -193,14 +192,30 @@ document.getElementById('completeCheck').addEventListener('click', () => {
    document.getElementById('completeCheck').style.display = 'none';
    document.getElementById('registryLinks').style.display = 'none';
    document.getElementById('copyResult').style.display = 'block';
- });
+ } catch (err) {
+   iframe.showSnackbar('Не удалось скопировать текст', 'error');
+ } finally {
+   document.body.removeChild(textarea);
+ }
 });
 
 // Обработчик для кнопки копирования
 document.getElementById('copyText').addEventListener('click', () => {
- navigator.clipboard.writeText(markdownText).then(() => {
+ const textarea = document.createElement('textarea');
+ textarea.value = markdownText;
+ textarea.style.position = 'fixed';
+ textarea.style.opacity = 0;
+ document.body.appendChild(textarea);
+ textarea.select();
+ 
+ try {
+   document.execCommand('copy');
    iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
- });
+ } catch (err) {
+   iframe.showSnackbar('Не удалось скопировать текст', 'error');
+ } finally {
+   document.body.removeChild(textarea);
+ }
 });
 
 innInput.addEventListener('keypress', (e) => {
