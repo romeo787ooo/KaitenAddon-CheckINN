@@ -77,8 +77,10 @@ function renderResults(data) {
 
  // Показываем ссылки на реестры и кнопку "Проверка завершена" сразу
  const registryLinks = document.getElementById('registryLinks');
+ const completeButton = document.getElementById('completeCheck');
+ 
  registryLinks.style.display = 'block';
- document.getElementById('completeCheck').style.display = 'block';
+ completeButton.style.display = 'block';
 
  // Обновляем ссылки с учетом ИНН
  const classifiedLink = document.getElementById('classifiedLink');
@@ -151,7 +153,7 @@ checkButton.addEventListener('click', async () => {
 });
 
 // Обработчик для кнопки "Проверка завершена"
-document.getElementById('completeCheck').addEventListener('click', () => {
+document.getElementById('completeCheck').addEventListener('click', async () => {
  markdownText = `### Информация о компании\n\n`;
  markdownText += `**${companyData.title}**\n\n`;
  markdownText += `ИНН: ${companyData.inn}\n`;
@@ -175,47 +177,35 @@ document.getElementById('completeCheck').addEventListener('click', () => {
    }
  }
 
- // Создаем временный элемент textarea для копирования
- const textarea = document.createElement('textarea');
- textarea.value = markdownText;
- textarea.style.position = 'fixed';
- textarea.style.opacity = 0;
- document.body.appendChild(textarea);
- textarea.select();
+ // Отмечаем, что ИНН проверен
+ await iframe.setData('card', 'private', 'innChecked', true);
  
- try {
-   document.execCommand('copy');
-   iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
-   
-   // Скрываем все кнопки кроме копирования
-   document.getElementById('buttons').style.display = 'none';
-   document.getElementById('completeCheck').style.display = 'none';
-   document.getElementById('registryLinks').style.display = 'none';
-   document.getElementById('copyResult').style.display = 'block';
- } catch (err) {
-   iframe.showSnackbar('Не удалось скопировать текст', 'error');
- } finally {
-   document.body.removeChild(textarea);
- }
-});
+ // Скрываем кнопки и реестры
+ document.getElementById('buttons').style.display = 'none';
+ document.getElementById('completeCheck').style.display = 'none';
+ document.getElementById('registryLinks').style.display = 'none';
 
-// Обработчик для кнопки копирования
-document.getElementById('copyText').addEventListener('click', () => {
- const textarea = document.createElement('textarea');
- textarea.value = markdownText;
- textarea.style.position = 'fixed';
- textarea.style.opacity = 0;
- document.body.appendChild(textarea);
- textarea.select();
- 
- try {
-   document.execCommand('copy');
-   iframe.showSnackbar('Результат проверки скопирован в буфер обмена', 'success');
- } catch (err) {
-   iframe.showSnackbar('Не удалось скопировать текст', 'error');
- } finally {
-   document.body.removeChild(textarea);
- }
+ // Показываем результат для копирования
+ const resultBlock = document.createElement('div');
+ resultBlock.innerHTML = `
+   <div style="margin-top: 20px; padding: 16px; background: var(--addon-background-level2); border-radius: 8px;">
+     <div style="margin-bottom: 16px; color: var(--addon-text-secondary-color);">
+       ⚠️ Скопируйте текст ниже и вставьте его в описание карточки:
+     </div>
+     <pre style="white-space: pre-wrap; word-wrap: break-word; padding: 16px; background: var(--addon-background-level1); border-radius: 4px; font-family: monospace;">${markdownText}</pre>
+     <button id="closePopup" class="addon-btn-primary" style="width: 100%; margin-top: 16px;">
+       Закрыть
+     </button>
+   </div>
+ `;
+ results.appendChild(resultBlock);
+
+ // Обработчик закрытия
+ document.getElementById('closePopup').addEventListener('click', () => {
+   iframe.closePopup();
+ });
+
+ iframe.fitSize('#checkInnContent');
 });
 
 innInput.addEventListener('keypress', (e) => {
