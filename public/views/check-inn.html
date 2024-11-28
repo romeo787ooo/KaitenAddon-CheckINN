@@ -1,62 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <script src="https://files.kaiten.ru/web-sdk/v1.min.js"></script>
-  <link href="https://files.kaiten.ru/web-sdk/v1.min.css" rel="stylesheet" />
-  <style>
-    .loader {
-      display: none;
-      text-align: center;
-      padding: 10px;
-    }
-    
-    .loader-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid var(--addon-background-level2);
-      border-radius: 50%;
-      border-top-color: var(--addon-primary-color);
-      animation: spin 1s linear infinite;
-    }
+ <meta charset="utf-8">
+ <script src="https://files.kaiten.ru/web-sdk/v1.min.js"></script>
+ <link href="https://files.kaiten.ru/web-sdk/v1.min.css" rel="stylesheet" />
+ <style>
+   .loader {
+     display: none;
+     text-align: center;
+     padding: 10px;
+   }
+   
+   .loader-spinner {
+     display: inline-block;
+     width: 20px;
+     height: 20px;
+     border: 3px solid var(--addon-background-level2);
+     border-radius: 50%;
+     border-top-color: var(--addon-primary-color);
+     animation: spin 1s linear infinite;
+   }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+   @keyframes spin {
+     to { transform: rotate(360deg); }
+   }
 
-    .results {
-      display: none;
-      margin-top: 20px;
-      border-top: 1px solid var(--addon-divider);
-      padding-top: 16px;
-    }
+   .results {
+     display: none;
+     margin-top: 20px;
+     border-top: 1px solid var(--addon-divider);
+     padding-top: 16px;
+   }
 
-    .info-grid {
-      display: grid;
-      gap: 8px;
-    }
-  </style>
+   .info-grid {
+     display: grid;
+     gap: 8px;
+   }
+
+   .checkLinks {
+     display: none;
+     margin-top: 20px;
+     border-top: 1px solid var(--addon-divider);
+     padding-top: 16px;
+   }
+
+   .checkLinks a {
+     color: var(--addon-primary-color);
+     text-decoration: none;
+   }
+
+   .checkLinks a:hover {
+     text-decoration: underline;
+   }
+ </style>
 </head>
 <body>
-  <div id="checkInnContent" style="padding: 16px;">
-    <label for="innInput" class="addon-input-label">Введите ИНН компании</label>
-    <input type="text" id="innInput" class="addon-input" style="width: 100%; margin: 8px 0;" 
-           placeholder="Например: 7710878000">
-    
-    <div id="loader" class="loader">
-      <div class="loader-spinner"></div>
-      <div style="margin-top: 8px;">Проверка ИНН...</div>
-    </div>
+ <div id="checkInnContent" style="padding: 16px;">
+   <label for="innInput" class="addon-input-label">Введите ИНН компании</label>
+   <input type="text" id="innInput" class="addon-input" style="width: 100%; margin: 8px 0;" 
+          placeholder="Например: 7710878000">
+   
+   <div id="loader" class="loader">
+     <div class="loader-spinner"></div>
+     <div style="margin-top: 8px;">Проверка ИНН...</div>
+   </div>
 
-    <!-- Добавляем секцию для результатов -->
-    <div id="results" class="results"></div>
+   <div id="results" class="results"></div>
 
-    <div id="buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-      <button id="cancel" class="addon-btn">Закрыть</button>
-      <button id="check" class="addon-btn-primary">Проверить</button>
-    </div>
-  </div>
-  <script src="../js/check-inn.js"></script>
+   <div id="checkLinks" class="checkLinks">
+     <div style="font-size: 14px; color: var(--addon-text-secondary-color); margin-bottom: 12px;">
+       Проверка в реестрах:
+     </div>
+     <div style="display: flex; align-items: center; margin-bottom: 8px;">
+       <a href="https://fsa.gov.ru/use-of-technology/elektronnye-reestryy/reestr-klassifitsirovannykh-obektov-gostinitsy-i-inye-sredstva-razmeshcheniya/?inn=2301006169" target="_blank">Реестр классифицированных объектов</a>
+       <span id="classifiedCheck" style="margin-left: 8px; display: none;">✅</span>
+     </div>
+     <div style="display: flex; align-items: center; margin-bottom: 8px;">
+       <a href="https://economy.gov.ru/material/directions/turizm/reestry_turizm/edinyy_federalnyy_reestr_turoperatorov/poisk_po_efrt/" target="_blank">Федеральный реестр Туроператоров</a>
+       <span id="tourOperatorCheck" style="margin-left: 8px; display: none;">✅</span>
+     </div>
+     <div style="margin-bottom: 8px;">
+       <a href="https://tourism.gov.ru/agents/" target="_blank">Федеральный реестр Турагентов и Субагентов</a>
+     </div>
+     <div id="agentLinkInput" style="display: none; margin-top: 8px;">
+       <input type="text" class="addon-input" placeholder="Вставьте ссылку на агента" style="width: 100%;">
+     </div>
+     <button id="completeCheck" class="addon-btn-primary" style="width: 100%; margin-top: 16px;">Проверка завершена</button>
+   </div>
+
+   <div id="buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+     <button id="cancel" class="addon-btn">Закрыть</button>
+     <button id="check" class="addon-btn-primary">Проверить</button>
+   </div>
+ </div>
+ <script src="../js/check-inn.js"></script>
 </body>
 </html>
