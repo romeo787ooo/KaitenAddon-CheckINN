@@ -5,13 +5,36 @@ const checkButton = document.getElementById('check');
 const cancelButton = document.getElementById('cancel');
 const loader = document.getElementById('loader');
 const buttons = document.getElementById('buttons');
+const results = document.getElementById('results');
 
 iframe.fitSize('#checkInnContent');
 
 function setLoading(isLoading) {
   loader.style.display = isLoading ? 'block' : 'none';
-  buttons.style.display = isLoading ? 'none' : 'flex';
+  checkButton.disabled = isLoading;
   innInput.disabled = isLoading;
+  iframe.fitSize('#checkInnContent');
+}
+
+function renderResults(data) {
+  results.style.display = 'block';
+  results.innerHTML = `
+    <div class="company-info">
+      <h3 style="margin-bottom: 16px; color: var(--addon-text-primary-color);">
+        ${data.title || 'Информация о компании'}
+      </h3>
+      <div class="info-grid">
+        <div><strong>ИНН:</strong> ${data.inn || '-'}</div>
+        <div><strong>КПП:</strong> ${data.kpp || '-'}</div>
+        <div><strong>ОГРН:</strong> ${data.ogrn || '-'}</div>
+        <div><strong>Статус:</strong> ${data.status || '-'}</div>
+        <div><strong>Адрес:</strong> ${data.address || '-'}</div>
+        <div><strong>Руководитель:</strong> ${data.managementFIO || '-'}</div>
+        <div><strong>Должность:</strong> ${data.managementPost || '-'}</div>
+        <div><strong>ОКПО:</strong> ${data.okpo || '-'}</div>
+      </div>
+    </div>
+  `;
   iframe.fitSize('#checkInnContent');
 }
 
@@ -28,6 +51,7 @@ checkButton.addEventListener('click', async () => {
   }
 
   try {
+    results.style.display = 'none';
     setLoading(true);
     
     const apiUrl = `https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`;
@@ -45,7 +69,6 @@ checkButton.addEventListener('click', async () => {
     }
     
     const data = await response.json();
-    console.log('Received data:', data); // Для отладки
 
     if (data.error) {
       setLoading(false);
@@ -53,17 +76,8 @@ checkButton.addEventListener('click', async () => {
       return;
     }
 
-    // Закрываем попап только после успешного получения данных
-    await iframe.closePopup();
-
-    // Открываем диалог с результатами
-    return iframe.openDialog({
-      title: `Информация о компании: ${data.title || inn}`,
-      url: './company-info.html',
-      width: 'md',
-      height: 400,
-      args: { companyData: data } // Передаем данные
-    });
+    setLoading(false);
+    renderResults(data);
 
   } catch (error) {
     console.error('Error details:', error);

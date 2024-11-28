@@ -24,6 +24,18 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    .results {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid var(--addon-divider);
+      padding-top: 16px;
+    }
+
+    .info-grid {
+      display: grid;
+      gap: 8px;
+    }
   </style>
 </head>
 <body>
@@ -32,14 +44,16 @@
     <input type="text" id="innInput" class="addon-input" style="width: 100%; margin: 8px 0;" 
            placeholder="Например: 7710878000">
     
-    <!-- Добавляем индикатор загрузки -->
     <div id="loader" class="loader">
       <div class="loader-spinner"></div>
       <div style="margin-top: 8px;">Проверка ИНН...</div>
     </div>
 
+    <!-- Добавляем секцию для результатов -->
+    <div id="results" class="results"></div>
+
     <div id="buttons" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-      <button id="cancel" class="addon-btn">Отмена</button>
+      <button id="cancel" class="addon-btn">Закрыть</button>
       <button id="check" class="addon-btn-primary">Проверить</button>
     </div>
   </div>
