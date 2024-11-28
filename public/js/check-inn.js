@@ -100,40 +100,53 @@ cancelButton.addEventListener('click', () => {
 });
 
 checkButton.addEventListener('click', async () => {
- const inn = innInput.value.trim();
- 
- if (!inn || inn.length < 10) {
-   iframe.showSnackbar('Введите корректный ИНН', 'warning');
-   return;
- }
+  const inn = innInput.value.trim();
+  
+  if (!inn || inn.length < 10) {
+    iframe.showSnackbar('Введите корректный ИНН', 'warning');
+    return;
+  }
 
- try {
-   results.style.display = 'none';
-   checkLinks.style.display = 'none';
-   setLoading(true);
-   
-   const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
-   
-   if (!response.ok) {
-     throw new Error(`HTTP error! status: ${response.status}`);
-   }
-   
-   const data = await response.json();
+  try {
+    results.style.display = 'none';
+    checkLinks.style.display = 'none';
+    setLoading(true);
 
-   if (data.error) {
-     setLoading(false);
-     iframe.showSnackbar(`Ошибка: ${data.error}`, 'error');
-     return;
-   }
+    console.log('Sending request to:', `https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`);
+    
+    // Добавляем заголовки и режим no-cors
+    const response = await fetch(`https://mt.mosgortur.ru/MGTAPI/api/PartnerRequisites/${inn}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors' // Пробуем разные режимы: 'cors', 'no-cors', 'same-origin'
+    });
+    
+    console.log('Response received:', response);
 
-   setLoading(false);
-   renderResults(data);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Data received:', data);
 
- } catch (error) {
-   console.error('Error details:', error);
-   iframe.showSnackbar('Ошибка при проверке ИНН', 'error');
-   setLoading(false);
- }
+    if (data.error) {
+      setLoading(false);
+      iframe.showSnackbar(`Ошибка: ${data.error}`, 'error');
+      return;
+    }
+
+    setLoading(false);
+    renderResults(data);
+
+  } catch (error) {
+    console.error('Error details:', error);
+    iframe.showSnackbar(`Ошибка при проверке ИНН: ${error.message}`, 'error');
+    setLoading(false);
+  }
 });
 
 // Обработчики для ссылок
