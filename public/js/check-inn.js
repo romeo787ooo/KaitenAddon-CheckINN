@@ -1,4 +1,7 @@
 const iframe = Addon.iframe();
+const KAITEN_TOKEN = '296a5709-99bc-49a7-96e0-c0a1b236091f'; // Замените на свой токен
+let currentCardId = null;
+let companyData = null;
 
 const innInput = document.getElementById('innInput');
 const checkButton = document.getElementById('check');
@@ -12,8 +15,10 @@ const tourOperatorCheck = document.getElementById('tourOperatorCheck');
 const agentLinkInput = document.getElementById('agentLinkInput');
 const completeCheckButton = document.getElementById('completeCheck');
 
-// Переменная для хранения данных о компании
-let companyData = null;
+// Получаем cardId при инициализации
+iframe.getArgs().then(args => {
+ currentCardId = args.cardId;
+});
 
 iframe.fitSize('#checkInnContent');
 
@@ -126,7 +131,7 @@ checkButton.addEventListener('click', async () => {
 
  } catch (error) {
    console.error('Error details:', error);
-   iframe.showSnackbar('Ошибка при проверке ИНН. Проверьте консоль для деталей.', 'error');
+   iframe.showSnackbar('Ошибка при проверке ИНН', 'error');
    setLoading(false);
  }
 });
@@ -145,7 +150,6 @@ document.querySelector('a[href*="tourism.gov.ru"]').addEventListener('click', ()
  iframe.fitSize('#checkInnContent');
 });
 
-// Обработчик для кнопки "Проверка завершена"
 completeCheckButton.addEventListener('click', async () => {
  if (!companyData) {
    iframe.showSnackbar('Нет данных о компании', 'error');
@@ -177,12 +181,36 @@ completeCheckButton.addEventListener('click', async () => {
      checkResult += `🔗 Ссылка на реестр Турагентов: ${agentLinkValue}\n`;
    }
 
-   // Обновляем описание карточки
-   const card = await iframe.getCard();
+   // Получаем текущую карточку через API
+   const response = await fetch(`https://mosgt.kaiten.ru/api/latest/cards/${currentCardId}`, {
+     headers: {
+       'Authorization': `Bearer ${KAITEN_TOKEN}`
+     }
+   });
+   
+   if (!response.ok) {
+     throw new Error('Failed to fetch card data');
+   }
+
+   const card = await response.json();
    const currentDescription = card.description || '';
    const newDescription = currentDescription + checkResult;
 
-   await iframe.updateCard({ description: newDescription });
+   // Обновляем описание карточки через API
+   const updateResponse = await fetch(`https://mosgt.kaiten.ru/api/latest/cards/${currentCardId}`, {
+     method: 'PATCH',
+     headers: {
+       'Content-Type': 'application/json',
+       'Authorization': `Bearer ${KAITEN_TOKEN}`
+     },
+     body: JSON.stringify({
+       description: newDescription
+     })
+   });
+
+   if (!updateResponse.ok) {
+     throw new Error('Failed to update card description');
+   }
    
    iframe.showSnackbar('Проверка завершена. Результаты добавлены в описание карточки', 'success');
    iframe.closePopup();
