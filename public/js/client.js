@@ -12,7 +12,7 @@ Addon.initialize({
           title: 'Проверка ИНН',
           url: './public/views/check-inn.html',
           height: 150,
-          width: 400
+          width: 600
         });
       }
     });
