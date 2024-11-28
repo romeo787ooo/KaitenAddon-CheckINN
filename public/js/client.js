@@ -15,11 +15,13 @@ Addon.initialize({
           // Получаем карточку
           const card = await buttonContext.getCard();
           
-          // Получаем свойства карточки
-          const properties = await buttonContext.getCardProperties('customProperties');
+          // Получаем пользовательские поля
+          const customProperties = await buttonContext.getCardProperties('customProperties');
+          console.log('Custom Properties:', customProperties); // для отладки
           
-          // Ищем поле с ID 398033
-          const innField = properties?.find(prop => prop.id === '398033');
+          // Ищем поле с ID 398033 (важно - сравниваем числа)
+          const innField = customProperties?.find(prop => prop.id === 398033);
+          console.log('INN Field:', innField); // для отладки
           
           if (!innField?.value) {
             buttonContext.showSnackbar('ИНН не указан в карточке', 'warning');
@@ -44,6 +46,7 @@ Addon.initialize({
             args: { companyData: data }
           });
         } catch (error) {
+          console.error('Error:', error); // для отладки
           buttonContext.showSnackbar('Ошибка при проверке ИНН', 'error');
         }
       }
