@@ -2,6 +2,7 @@ Addon.initialize({
   'card_buttons': async (cardButtonsContext) => {
     const buttons = [];
 
+    // Добавляем только одну кнопку для проверки ИНН
     buttons.push({
       text: '🔍 Проверить ИНН',
       callback: async (buttonContext) => {
@@ -15,7 +16,7 @@ Addon.initialize({
         });
       }
     });
-    // TESTOVII Комментарий
+
     return buttons;
   }
 });
